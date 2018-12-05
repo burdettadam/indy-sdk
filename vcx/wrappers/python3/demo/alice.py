@@ -3,6 +3,9 @@ import json
 from ctypes import cdll
 from time import sleep
 
+
+from indy import anoncreds, crypto, did, ledger, pool, wallet, payment, blob_storage
+
 from vcx.api.vcx_init import vcx_init_with_config
 from vcx.api.connection import Connection
 from vcx.api.credential import Credential
@@ -12,7 +15,8 @@ from vcx.state import State
 
 
 provisionConfig = {
-  'agency_url':'http://localhost:8080',
+  #'agency_url':'http://localhost:8080',
+  'agency_url':'http://18.188.30.211:30800',
   'agency_did':'VsKV7grR1BUE29mG2Fm2kX',
   'agency_verkey':'Hezce2UWMZ3wUhVkh2LfKSs8nDzWwzs2Win7EzNN3YaR',
   'wallet_name':'alice_wallet',
@@ -23,9 +27,12 @@ provisionConfig = {
 
 
 async def main():
-
-    payment_plugin = cdll.LoadLibrary("libnullpay.so")
-    payment_plugin.nullpay_init()
+    try:
+        await wallet.delete_wallet(json.dumps({"id": provisionConfig["wallet_name"]}), json.dumps({"key": provisionConfig["wallet_key"]}))
+    except :
+        pass
+    payment_plugin = cdll.LoadLibrary("libsovtoken.so")
+    payment_plugin.sovtoken_init()
 
     print("#7 Provision an agent and wallet, get back configuration details")
     config = await vcx_agent_provision(json.dumps(provisionConfig))
